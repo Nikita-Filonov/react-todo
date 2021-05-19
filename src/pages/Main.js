@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Button, Col, Container, Form, ListGroup, Row} from 'react-bootstrap';
+import {Alert, Button, Col, Container, Form, ListGroup, Row} from 'react-bootstrap';
 import {eventsData} from "../utils/data";
 import {Event} from "../components/items/Event";
 
@@ -9,15 +9,21 @@ export const Main = () => {
 
     const createEvent = () => {
         let eventId = Math.max(...events.map(event => event.id), 1);
-        setEvents([...events, {id: ++eventId, title: title}])
+        setEvents([...events, {id: ++eventId, title: title.trim()}])
         setTitle('')
     }
 
-    const deleteEvent = () => {
-
+    const deleteEvent = (eventId) => {
+        setEvents([...events.filter(event => event.id !== eventId)])
     }
 
-    const updateEvent = () => {
+    const updateEvent = (eventId, key, value) => {
+        setEvents([...events.map(event =>
+            event.id === eventId
+                ? {...event, [key]: value}
+                : event
+        )])
+        setTitle('')
     }
 
 
@@ -26,11 +32,16 @@ export const Main = () => {
             <Container>
                 <Row>
                     <Col xs={12} md={7}>
+                        <Alert variant={'secondary'}>
+                            You have {events.length} things to do
+                        </Alert>
                         <ListGroup as="ul">
                             {events.map(event => (
                                 <Event
                                     key={event.id}
                                     item={event}
+                                    updateEvent={updateEvent}
+                                    deleteEvent={deleteEvent}
                                 />
                             ))}
                         </ListGroup>
@@ -46,7 +57,7 @@ export const Main = () => {
                             />
                         </Form.Group>
                         <Button variant="primary"
-                                disabled={title.length === 0}
+                                disabled={title.trim().length === 0}
                                 onClick={createEvent}>
                             Create Event
                         </Button>
