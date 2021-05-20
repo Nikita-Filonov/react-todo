@@ -1,12 +1,15 @@
 import React, {useState} from "react";
-import {Alert, Col, Container, Form, ListGroup, Row} from 'react-bootstrap';
+import {Alert, Col, Container, DropdownButton, Form, ListGroup, Row, Dropdown} from 'react-bootstrap';
 import {eventsData} from "../utils/data";
 import {Event} from "../components/items/Event";
 import {EventForm} from "../components/blocks/EventForm";
+import {applyFilter} from "../utils/Utils";
 
 export const Main = () => {
     const [events, setEvents] = useState(eventsData)
     const [title, setTitle] = useState('')
+    const [search, setSearch] = useState('')
+    const [filter, setFilter] = useState('All')
 
     const createEvent = () => {
         let eventId = Math.max(...events.map(event => event.id), 1);
@@ -33,6 +36,8 @@ export const Main = () => {
                 <Col xs={12} md={7}>
                     <ListGroup as="ul">
                         <Form.Control
+                            value={search}
+                            onChange={event => setSearch(event.target.value)}
                             type="text"
                             className={'mb-3'}
                             placeholder="Search for events"
@@ -43,14 +48,17 @@ export const Main = () => {
                                 : `You have ${events.length} things to do`
                             }
                         </Alert>
-                        {events.map(event => (
-                            <Event
-                                key={event.id}
-                                item={event}
-                                updateEvent={updateEvent}
-                                deleteEvent={deleteEvent}
-                            />
-                        ))}
+                        {events
+                            .filter(event => applyFilter(filter, event))
+                            .filter(event => event.title.toLowerCase().includes(search.toLowerCase()))
+                            .map(event => (
+                                <Event
+                                    key={event.id}
+                                    item={event}
+                                    updateEvent={updateEvent}
+                                    deleteEvent={deleteEvent}
+                                />
+                            ))}
                     </ListGroup>
                 </Col>
                 <Col xs={6} md={5}>
@@ -59,6 +67,23 @@ export const Main = () => {
                         setTitle={setTitle}
                         createEvent={createEvent}
                     />
+                    <DropdownButton title={filter} className={'mt-3'}>
+                        <Dropdown.Item
+                            active={filter === 'All'}
+                            onClick={() => setFilter('All')}>
+                            All
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            active={filter === 'Done'}
+                            onClick={() => setFilter('Done')}>
+                            Done
+                        </Dropdown.Item>
+                        <Dropdown.Item
+                            active={filter === 'In Progress'}
+                            onClick={() => setFilter('In Progress')}>
+                            In Progress
+                        </Dropdown.Item>
+                    </DropdownButton>
                 </Col>
             </Row>
         </Container>
