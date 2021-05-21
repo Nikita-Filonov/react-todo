@@ -3,22 +3,13 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {BrowserRouter as Router, Route, Switch} from "react-router-dom";
 import {Main} from "./pages/Main";
 import {NavigationNavbar} from "./components/navigation/Navbar";
 
-const CustomRoute = () =>
-    <Router>
-        <NavigationNavbar/>
-        <Switch>
-            <Route path="/" component={Main}/>
-        </Switch>
-    </Router>
-
-
 ReactDOM.render(
     <React.StrictMode>
-        <CustomRoute/>
+        <NavigationNavbar/>
+        <Main/>
     </React.StrictMode>,
     document.getElementById('root')
 );
