@@ -1,40 +1,47 @@
-import React, {useState} from "react";
-import {Alert, Col, Container, DropdownButton, Form, ListGroup, Row, Dropdown} from 'react-bootstrap';
+import React, {useCallback, useMemo, useState} from "react";
+import {Alert, Col, Container, Dropdown, DropdownButton, Form, ListGroup, Row} from 'react-bootstrap';
 import {eventsData} from "../utils/data";
-import {Event} from "../components/items/Event";
+import Event from "../components/items/Event";
 import {EventForm} from "../components/blocks/EventForm";
 import {applyFilter} from "../utils/Utils";
 
-export const Main = () => {
+const Main = () => {
     const [events, setEvents] = useState(eventsData)
     const [title, setTitle] = useState('')
     const [search, setSearch] = useState('')
     const [filter, setFilter] = useState('All')
 
-    const createEvent = () => {
+    const createEvent = useCallback(() => {
         let eventId = Math.max(...events.map(event => event.id), 1);
         setEvents([...events, {id: ++eventId, title: title.trim()}])
         setTitle('')
-    }
+    }, [events, title])
 
-    const deleteEvent = (eventId) => {
+    const deleteEvent = useCallback((eventId) => {
         setEvents([...events.filter(event => event.id !== eventId)])
-    }
+    }, [events])
 
-    const updateEvent = (eventId, key, value) => {
+    const updateEvent = useCallback((eventId, key, value) => {
         setEvents([...events.map(event =>
             event.id === eventId
                 ? {...event, [key]: value}
                 : event
         )])
         setTitle('')
-    }
+    }, [events])
+
+    const handleEventsSearch = useMemo(() =>
+            events
+                .filter(event => applyFilter(filter, event))
+                .filter(event => event.title.toLowerCase().includes(search.toLowerCase())),
+        [events, filter, search]
+    )
 
     return (
         <Container className={'mt-5'}>
             <Row>
                 <Col xs={12} md={7}>
-                    <ListGroup as="ul">
+                    <ListGroup as="ul" className={'mb-5'}>
                         <Form.Control
                             value={search}
                             onChange={event => setSearch(event.target.value)}
@@ -48,17 +55,14 @@ export const Main = () => {
                                 : `You have ${events.length} things to do`
                             }
                         </Alert>
-                        {events
-                            .filter(event => applyFilter(filter, event))
-                            .filter(event => event.title.toLowerCase().includes(search.toLowerCase()))
-                            .map(event => (
-                                <Event
-                                    key={event.id}
-                                    item={event}
-                                    updateEvent={updateEvent}
-                                    deleteEvent={deleteEvent}
-                                />
-                            ))}
+                        {handleEventsSearch.map(event => (
+                            <Event
+                                key={event.id}
+                                item={event}
+                                updateEvent={updateEvent}
+                                deleteEvent={deleteEvent}
+                            />
+                        ))}
                     </ListGroup>
                 </Col>
                 <Col xs={6} md={5}>
@@ -89,3 +93,5 @@ export const Main = () => {
         </Container>
     )
 }
+
+export default React.memo(Main)

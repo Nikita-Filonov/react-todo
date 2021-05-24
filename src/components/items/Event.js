@@ -2,9 +2,10 @@ import React, {useState} from "react";
 import {Form, ListGroup} from "react-bootstrap";
 import {ArrowRight, CheckLg, Pencil, Trash} from 'react-bootstrap-icons';
 
-export const Event = ({item, updateEvent, deleteEvent}) => {
+const Event = ({item, updateEvent, deleteEvent}) => {
     const [edit, setEdit] = useState(false)
     const [title, setTitle] = useState(item.title)
+    console.log('render')
 
     return (
         <ListGroup.Item className="list-group-item d-flex justify-content-between align-items-center">
@@ -43,3 +44,5 @@ export const Event = ({item, updateEvent, deleteEvent}) => {
     )
 
 }
+
+export default React.memo(Event)
